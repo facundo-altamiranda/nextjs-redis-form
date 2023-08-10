@@ -1,8 +1,8 @@
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
-import Form from '../components/Form';
-import schema from '../schema/page';
+import Form from "../components/Form";
+import schema from "../schema/page";
 
 const App: React.FC = () => {
   return (

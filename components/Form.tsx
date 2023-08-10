@@ -1,12 +1,20 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import FieldRenderer from './FieldRenderer';
-import type { SchemaType } from '../schema/page';
+import React, { useState, ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/router";
+
+import FieldRenderer from "./FieldRenderer";
+import type { SchemaType } from "../schema/page";
+import validateForm from "../utils/validateForm";
 
 interface FormProps {
   schema: SchemaType;
 }
 
 const Form: React.FC<FormProps> = ({ schema }) => {
+  const { push } = useRouter();
+  const [redisError, setRedisError] = useState(false);
+  const [formErrors, setFormErrors] = useState<{ [key: string]: boolean } | {}>(
+    {}
+  );
   const [formData, setFormData] = useState<{ [key: string]: string | boolean }>(
     {}
   );
@@ -16,35 +24,62 @@ const Form: React.FC<FormProps> = ({ schema }) => {
   ) => {
     const { name, value, type } = event.target;
     const fieldValue =
-      type === 'checkbox' ? (event.target as HTMLInputElement).checked : value;
+      type === "checkbox" ? (event.target as HTMLInputElement).checked : value;
 
     setFormData((prevData) => ({
       ...prevData,
       [name]: fieldValue,
     }));
   };
-  const handleSubmit = async () => {
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const { errors, isValid } = validateForm(schema.required, formData);
+
+    if (!isValid) {
+      setFormErrors(errors);
+      return;
+    }
+
     try {
-      await fetch('/api/submit', {
-        method: 'POST',
+      const response = await fetch("/api/submit", {
+        method: "POST",
         body: JSON.stringify(formData),
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
+
+      if (response.ok) {
+        setRedisError(false);
+        push("/site");
+      }
     } catch (error) {
-      console.log(error);
+      setRedisError(true);
+    } finally {
+      setFormErrors({});
     }
   };
 
   return (
     <form className="space-y-8" onSubmit={handleSubmit}>
+      {!!redisError && (
+        <div
+          className="mb-4 rounded-lg bg-red-100 p-6 text-base text-red-800"
+          role="alert"
+        >
+          An error has occurred, please check again later.
+        </div>
+      )}
       {Object.keys(schema.properties).map((fieldName) => (
         <FieldRenderer
-          key={fieldName}
+          error={formErrors && formErrors[fieldName]}
           fieldName={fieldName}
-          schema={schema}
+          formData={formData}
           handleInputChange={handleInputChange}
+          key={fieldName}
+          schema={schema}
         />
       ))}
       <div>

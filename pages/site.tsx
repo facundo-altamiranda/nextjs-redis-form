@@ -1,9 +1,9 @@
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
-import Hero from '../components/Hero';
-import { Data } from '../types/data';
-import redis, { REDIS_KEY } from '../lib/db';
+import { Data } from "../types/data";
+import Hero from "../components/Hero";
+import redis, { REDIS_KEY } from "../lib/db";
 
 const App: React.FC<{ data: Data }> = ({ data }) => (
   <div className="w-full mx-auto">
@@ -26,8 +26,8 @@ const App: React.FC<{ data: Data }> = ({ data }) => (
   </div>
 );
 
-export async function getStaticProps() {
-  const data = await redis.get(REDIS_KEY);
+export async function getServerSideProps() {
+  const data: Data = await redis.get(REDIS_KEY);
 
   return {
     props: {

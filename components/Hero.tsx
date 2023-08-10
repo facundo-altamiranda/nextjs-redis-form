@@ -1,6 +1,7 @@
-import Link from 'next/link';
-import React from 'react';
-import { Data } from '../types/data';
+import Link from "next/link";
+import React from "react";
+
+import { Data } from "../types/data";
 
 const Hero: React.FC<{ data: Data }> = ({ data }) => (
   <div className="bg-white">
@@ -29,7 +30,11 @@ const Hero: React.FC<{ data: Data }> = ({ data }) => (
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
             {data.heading}
           </h2>
-          <p className="mt-6 text-lg leading-8 text-gray-300">
+          <p
+            className={`mt-6 text-lg leading-8 text-gray-300 ${
+              data.truncateDescription ? "truncate" : ""
+            }`}
+          >
             {data.description}
           </p>
           <div className="mt-10 mb-20 flex items-center justify-center gap-x-6 lg:justify-start">
